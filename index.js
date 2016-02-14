@@ -9,7 +9,7 @@ const Request = require('request');
 const EventStream = require('event-stream');
 const JSONStream = require('JSONStream');
 const Moment = require('moment');
-const Util = require('Util');
+const Util = require('util');
 
 const icannRegex = /===(BEGIN|END) ICANN DOMAINS===/;
 
