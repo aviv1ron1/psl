@@ -1,4 +1,4 @@
-# psl2 (Public Suffix List)
+# pslplus (Public Suffix List)
 
 This is a fork of the excellent [psl](https://www.npmjs.com/package/psl) module.
 
@@ -30,7 +30,7 @@ check how many days passed since the local list was last updated.
 ## example
 
 ```javascript
-var psl = require('psl2');
+var psl = require('pslplus');
 
 var query = function() {
 	console.log(psl.isValid("blogspot.com"));	//this will return true if private domains are not included and false otherwise since blogspot.com was registered by google.
