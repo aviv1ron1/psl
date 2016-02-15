@@ -10,6 +10,8 @@ So this module has an option wether to include also provate domains or not.
 
 Another option this module has is an update mechanism from code that updates the local list from the [public list from Mozilla](https://publicsuffix.org/).
 
+Lastly this module improves run time for parsing and validating domains.
+
 In addition to the [original plugin's api](https://www.npmjs.com/package/psl) this module has the following methods:
 
 ### `update(options, callback)`
@@ -17,7 +19,7 @@ In addition to the [original plugin's api](https://www.npmjs.com/package/psl) th
 updates the local list from the online public list or from another source defined by options
 
 * `options`: [optional] an object that may contain the following properties
- * `alsoPrivateDomains`: [optional boolean] if true will include the private part of the list. default is false.
+ * `alsoPrivateDomains`: [optional boolean] if true will include the private part of the list, otherwise will include only icann public domains. default is true.
  * `url`: [optional string] if defined will be used as the source of the list to update from instead of the default hard coded address in this module which is [https://publicsuffix.org/list/effective_tld_names.dat](https://publicsuffix.org/list/effective_tld_names.dat)
 * `callback`: [optional function(err)] a callback that will be called when the update process completes. If an error occured it will be passed and otherwise this callback will be called with no parameters indicating of success.
 

@@ -15,7 +15,7 @@ const icannRegex = /===(BEGIN|END) ICANN DOMAINS===/;
 
 var internals = {};
 
-internals.alsoPrivateDomains = false;
+internals.alsoPrivateDomains = true;
 internals.icannMode = false;
 
 internals.isDefined = function(x) {
@@ -37,7 +37,7 @@ internals.parseLine = function(line, cb) {
         return cb();
     }
     if (trimmed.charAt(0) === '/' && trimmed.charAt(1) === '/') {
-        if (icannRegex.test(trimmed)) {
+        if (!internals.alsoPrivateDomains && icannRegex.test(trimmed)) {
             internals.icannMode = !internals.icannMode;
         }
         return cb();
@@ -65,12 +65,14 @@ internals.getRules = function() {
         rules = [];
     }
     internals.rules = rules.map(function(rule) {
-        return {
+        var r = {
             rule: rule,
             suffix: rule.replace(/^(\*\.|\!)/, ''),
             wildcard: rule.charAt(0) === '*',
             exception: rule.charAt(0) === '!'
         };
+        r.punySuffix = Punycode.toASCII(r.suffix);
+        return r;
     });
 };
 
@@ -93,8 +95,8 @@ internals.findRule = function(domain) {
     var punyDomain = Punycode.toASCII(domain);
     return internals.rules.reduce(function(memo, rule) {
 
-        var punySuffix = Punycode.toASCII(rule.suffix);
-        if (!internals.endsWith(punyDomain, '.' + punySuffix) && punyDomain !== punySuffix) {
+        //var punySuffix = Punycode.toASCII(rule.suffix);
+        if (!internals.endsWith(punyDomain, '.' + rule.punySuffix) && punyDomain !== rule.punySuffix) {
             return memo;
         }
         // This has been commented out as it never seems to run. This is because
@@ -110,7 +112,6 @@ internals.findRule = function(domain) {
     }, null);
 };
 
-
 //
 // Error codes and messages.
 //
@@ -121,7 +122,8 @@ exports.errorCodes = {
     LABEL_ENDS_WITH_DASH: 'Domain name label can not end with a dash.',
     LABEL_TOO_LONG: 'Domain name label should be at most 63 chars long.',
     LABEL_TOO_SHORT: 'Domain name label should be at least 1 character long.',
-    LABEL_INVALID_CHARS: 'Domain name label can only contain alphanumeric characters or dashes.'
+    LABEL_INVALID_CHARS: 'Domain name label can only contain alphanumeric characters or dashes.',
+    LABEL_ERROR: 'Domain name is invalid'
 };
 
 
@@ -156,35 +158,37 @@ internals.validate = function(input) {
         return 'DOMAIN_TOO_LONG';
     }
 
-    // Check each part's length and allowed chars.
-    var labels = ascii.split('.');
-    var label;
 
-    for (var i = 0; i < labels.length; ++i) {
-        label = labels[i];
-        if (!label.length) {
-            return 'LABEL_TOO_SHORT';
-        }
-        if (label.length > 63) {
-            return 'LABEL_TOO_LONG';
-        }
-        if (label.charAt(0) === '-') {
-            return 'LABEL_STARTS_WITH_DASH';
-        }
-        if (label.charAt(label.length - 1) === '-') {
-            return 'LABEL_ENDS_WITH_DASH';
-        }
-        if (!/^[a-z0-9\-]+$/.test(label)) {
-            return 'LABEL_INVALID_CHARS';
+
+    if (!/^(?:[a-z0-9]{1}([a-z0-9\-]{0,61}[a-z0-9]){0,1}\.)+[a-z0-9]{1}(?:[a-z0-9\-]{0,60}[a-z0-9]){0,1}\.?$/.test(ascii)) {
+        //Check each part's length and allowed chars.
+        var labels = ascii.split('.');
+        var label;
+
+        for (var i = 0; i < labels.length; ++i) {
+            label = labels[i];
+            if (!label.length) {
+                return 'LABEL_TOO_SHORT';
+            }
+            if (label.length > 63) {
+                return 'LABEL_TOO_LONG';
+            }
+            if (label.charAt(0) === '-') {
+                return 'LABEL_STARTS_WITH_DASH';
+            }
+            if (label.charAt(label.length - 1) === '-') {
+                return 'LABEL_ENDS_WITH_DASH';
+            }
+            if (!/^[a-z0-9\-]+$/.test(label)) {
+                return 'LABEL_INVALID_CHARS';
+            }
         }
     }
 };
 
-
 //
 // Public API
 //
-
 
 //
 // Parse domain.
@@ -347,7 +351,11 @@ exports.update = function(options, callback) {
         }
     }
     if (!internals.isDefined(callback)) {
-        callback = function() {};
+        callback = function(err) {
+            if (err) {
+                console.error(err);
+            }
+        };
     }
     Request(internals.src)
         .pipe(EventStream.split())
