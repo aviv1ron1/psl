@@ -61,7 +61,105 @@ psl.lastUpdated((err, days) => {
 });
 ```
 
+
 The rest of the API can be viewed in the original module's documentation: [psl](https://www.npmjs.com/package/psl)
+
+### `psl.get(domain)`
+
+Get domain name, `sld` + `tld`. Returns `null` if not valid.
+
+#### Example:
+
+```js
+var psl = require('psl');
+
+// null input.
+psl.get(null); // null
+
+// Mixed case.
+psl.get('COM'); // null
+psl.get('example.COM'); // 'example.com'
+psl.get('WwW.example.COM'); // 'example.com'
+
+// Unlisted TLD.
+psl.get('example'); // null
+psl.get('example.example'); // 'example.example'
+psl.get('b.example.example'); // 'example.example'
+psl.get('a.b.example.example'); // 'example.example'
+
+// TLD with only 1 rule.
+psl.get('biz'); // null
+psl.get('domain.biz'); // 'domain.biz'
+psl.get('b.domain.biz'); // 'domain.biz'
+psl.get('a.b.domain.biz'); // 'domain.biz'
+
+// TLD with some 2-level rules.
+psl.get('uk.com'); // null);
+psl.get('example.uk.com'); // 'example.uk.com');
+psl.get('b.example.uk.com'); // 'example.uk.com');
+
+// More complex TLD.
+psl.get('c.kobe.jp'); // null
+psl.get('b.c.kobe.jp'); // 'b.c.kobe.jp'
+psl.get('a.b.c.kobe.jp'); // 'b.c.kobe.jp'
+psl.get('city.kobe.jp'); // 'city.kobe.jp'
+psl.get('www.city.kobe.jp'); // 'city.kobe.jp'
+
+// IDN labels.
+psl.get('食狮.com.cn'); // '食狮.com.cn'
+psl.get('食狮.公司.cn'); // '食狮.公司.cn'
+psl.get('www.食狮.公司.cn'); // '食狮.公司.cn'
+
+// Same as above, but punycoded.
+psl.get('xn--85x722f.com.cn'); // 'xn--85x722f.com.cn'
+psl.get('xn--85x722f.xn--55qx5d.cn'); // 'xn--85x722f.xn--55qx5d.cn'
+psl.get('www.xn--85x722f.xn--55qx5d.cn'); // 'xn--85x722f.xn--55qx5d.cn'
+```
+
+### `psl.isValid(domain)`
+
+Check whether a domain has a valid Public Suffix. Returns a `Boolean` indicating
+whether the domain has a valid Public Suffix.
+
+#### Example
+
+```js
+var psl = require('psl');
+
+psl.isValid('google.com'); // true
+psl.isValid('www.google.com'); // true
+psl.isValid('x.yz'); // false
+```
+
+
+## Testing and Building
+
+Test are written using [`mocha`](https://mochajs.org/) and can be
+run in two different environments: `node` and `phantomjs`.
+
+```sh
+# This will run `eslint`, `mocha` and `karma`.
+npm test
+
+# Individual test environments
+# Run tests in node only.
+./node_modules/.bin/mocha test
+# Run tests in phantomjs only.
+./node_modules/.bin/karma start ./karma.conf.js --single-run
+
+# Build data (parse raw list) and create dist files
+npm run build
+```
+
+Feel free to fork if you see possible improvements!
+
+
+## Acknowledgements
+
+* Mozilla Foundation's [Public Suffix List](https://publicsuffix.org/)
+* Thanks to Rob Stradling of [Comodo](https://www.comodo.com/) for providing
+  test data.
+* Inspired by [weppos/publicsuffix-ruby](https://github.com/weppos/publicsuffix-ruby)
 
 ## License
 

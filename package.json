@@ -1,44 +1,48 @@
 {
-    "name": "pslplus",
-    "version": "0.1.0",
-    "description": "Domain name parser based on the Public Suffix List",
-    "repository": {
-        "type": "git",
-        "url": "git@github.com:aviv1ron1/psl.git"
-    },
-    "main": "index.js",
-    "scripts": {
-        "test": "./node_modules/.bin/mocha test && ./node_modules/.bin/karma start ./karma.conf.js --single-run",
-        "watch": "./node_modules/.bin/mocha test --watch",
-        "prebuild": "node ./build.js",
-        "build": "./node_modules/.bin/browserify ./index.js --standalone=psl > ./dist/psl.js",
-        "postbuild": "./node_modules/.bin/uglifyjs ./dist/psl.js -mc > ./dist/psl.min.js"
-    },
-    "keywords": [
-        "publicsuffix",
-        "publicsuffixlist"
-    ],
-    "author": "Aviv Ron",
-    "license": "MIT",
-    "devDependencies": {
-        "browserify": "^13.0.0",
-        "eslint": "^1.10.3",
-        "eslint-config-hapi": "^8.0.1",
-        "eslint-plugin-hapi": "^4.0.0",
-        "karma": "^0.13.19",
-        "karma-browserify": "^5.0.1",
-        "karma-mocha": "^0.2.0",
-        "karma-mocha-reporter": "^1.1.5",
-        "karma-phantomjs-launcher": "^1.0.0",
-        "mocha": "^2.4.5",
-        "phantomjs-prebuilt": "^2.1.4",
-        "uglifyjs": "^2.4.10",
-        "watchify": "^3.7.0"
-    },
-    "dependencies": {
-        "moment": "^2.11.2",
-        "request": "^2.69.0",
-        "event-stream": "^3.1.7",
-        "JSONStream": "^1.0.4"
-    }
+  "name": "pslplus",
+  "version": "0.2.0",
+  "description": "Domain name parser based on the Public Suffix List",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:aviv1ron1/psl.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "pretest": "eslint .",
+    "test": "mocha test && karma start ./karma.conf.js --single-run",
+    "watch": "mocha test --watch",
+    "prebuild": "node ./data/build.js",
+    "build": "browserify ./index.js --standalone=psl > ./dist/psl.js",
+    "postbuild": "cat ./dist/psl.js | uglifyjs -c -m > ./dist/psl.min.js"
+  },
+  "keywords": [
+    "publicsuffix",
+    "publicsuffixlist"
+  ],
+  "author": "Aviv Ron",
+  "license": "MIT",
+  "devDependencies": {
+    "JSONStream": "^1.3.2",
+    "browserify": "^16.2.2",
+    "eslint": "^4.19.1",
+    "eslint-config-hapi": "^11.1.0",
+    "eslint-plugin-hapi": "^4.1.0",
+    "event-stream": "^3.3.4",
+    "karma": "^2.0.2",
+    "karma-browserify": "^5.2.0",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "mocha": "^5.2.0",
+    "phantomjs-prebuilt": "^2.1.16",
+    "request": "^2.87.0",
+    "uglify-js": "^3.3.26",
+    "watchify": "^3.11.0"
+  },
+  "dependencies": {
+    "moment": "^2.11.2",
+    "request": "^2.69.0",
+    "event-stream": "^3.1.7",
+    "JSONStream": "^1.0.4"
+  }
 }

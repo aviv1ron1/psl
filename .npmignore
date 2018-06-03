@@ -1,6 +1,5 @@
 build.js
 data/public_suffix_list.dat
-dist/
 examples/
 test/
 node_modules/
